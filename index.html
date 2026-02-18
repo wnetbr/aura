@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA | Neural Interface</title>
+    <title>AURA</title>
     <style>
         :root {
             --accent: #00f2ff;
@@ -90,7 +90,7 @@
 <div class="aura-shell">
     <div class="header"><h1>AURA</h1></div>
     <div id="chat-flow">
-        <div class="bubble aura">Sistemas estabilizados. Chave de rede autenticada. Como posso atuar, mestre?</div>
+        <div class="bubble aura">Sistemas estabilizados. Chave de rede autenticada. Como posso atuar hoje?</div>
     </div>
     <div class="input-area">
         <input type="text" id="user-input" placeholder="Transmitir comando..." onkeypress="if(event.key==='Enter') processar()">
@@ -99,8 +99,7 @@
 </div>
 
 <script>
-    // CHAVE VINCULADA COM SUCESSO
-    const API_KEY = "AIzaSyBUpz34sXgtSyXR1SnaaO0KFlC2BAY7vZo"; 
+    const API_KEY = "AIzaSyDMELFDRkHzusfJgyPvUBjjZJKEAcd-nJ8"; 
 
     async function processar() {
         const input = document.getElementById('user-input');
@@ -109,11 +108,9 @@
 
         if (!prompt) return;
 
-        // Interface: Usuário
         flow.innerHTML += `<div class="bubble user">${prompt}</div>`;
         input.value = "";
         
-        // Interface: Carregando
         const loadingId = "L-" + Date.now();
         flow.innerHTML += `<div class="bubble aura loading" id="${loadingId}">A processar...</div>`;
         flow.scrollTop = flow.scrollHeight;
@@ -123,24 +120,19 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: "Você é AURA, uma IA de elite. Responda: " + prompt }] }]
+                    contents: [{ parts: [{ text: "Responda como AURA, uma IA elegante e técnica: " + prompt }] }]
                 })
             });
 
             const data = await response.json();
-            
-            if(data.error) throw new Error(data.error.message);
-
             const resposta = data.candidates[0].content.parts[0].text;
 
-            // Substitui o carregando pela resposta final
             const auraDiv = document.getElementById(loadingId);
             auraDiv.classList.remove('loading');
             auraDiv.innerText = resposta;
 
         } catch (error) {
-            document.getElementById(loadingId).innerText = "ERRO: Núcleo AURA falhou. Verifique se a chave ainda é válida.";
-            console.error(error);
+            document.getElementById(loadingId).innerText = "ERRO: Falha de conexão. Verifique se a sua chave de API ainda está ativa.";
         }
         
         flow.scrollTop = flow.scrollHeight;
