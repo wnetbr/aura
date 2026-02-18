@@ -45,13 +45,13 @@
 <body>
 
 <div class="aura-shell">
-    <div class="header"><h1>AURA // GH-INTERFACE</h1></div>
+    <div class="header"><h1>AURA</h1></div>
     <div id="chat-flow">
-        <div class="bubble aura">Conexão estabelecida com o GitHub. AURA pronta para operação.</div>
+        <div class="bubble aura">FALE ALGO...</div>
     </div>
     <div class="input-area">
         <input type="text" id="user-input" placeholder="Comando para o núcleo..." onkeypress="if(event.key==='Enter') processar()">
-        <button onclick="processar()">RUN</button>
+        <button onclick="processar()">ENVIAR</button>
     </div>
 </div>
 
@@ -67,7 +67,7 @@
         const flow = document.getElementById('chat-flow');
         const prompt = input.value.trim();
 
-        if (!prompt || GITHUB_TOKEN.startsWith("COLE_SEU")) {
+        if (!prompt || GITHUB_TOKEN.startsWith("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")) {
             alert("Erro: Token do GitHub não configurado.");
             return;
         }
