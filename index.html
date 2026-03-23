@@ -46,7 +46,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z-1 | Transferência P2P</title>
+    <title>zory</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -220,7 +220,7 @@
         <div id="transfer-view" style="display:none;">
             <div class="drop-zone" onclick="document.getElementById('file-input').click()">
                 <svg style="width:40px; height:40px; stroke:var(--apple-blue); margin-bottom:10px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                <div style="font-weight: 600; color: var(--apple-blue);">Enviar Arquivo</div>
+                <div style="font-weight: 600; color: var(--apple-blue);">Enviar</div>
             </div>
             
             <div class="progress-bar" id="p-bar"><div id="fill"></div></div>
@@ -288,7 +288,7 @@
             let icon = '📄';
             if(type.includes('image')) icon = '🖼️';
             else if(type.includes('video')) icon = '🎬';
-            else if(name.endsWith('.apk') || name.endsWith('.exe')) icon = '📦';
+            else if(name.endsWith('.apk') || name.endsWith('.exe')) icon = '🤖';
 
             item.innerHTML = `
                 <div class="file-icon">${icon}</div>
