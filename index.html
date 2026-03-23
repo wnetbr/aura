@@ -1,57 +1,44 @@
-<!DOCTYPE html><html><head><style>/* Ajuste para o Modal da Câmera */
-#scanner-modal {
-    display: none; 
-    position: fixed; 
-    inset: 0; 
-    background: rgba(255, 255, 255, 0.6); /* Efeito translúcido */
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    z-index: 1000; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center;
-}
-
-/* Onde o vídeo da câmera aparece */
-#reader { 
-    width: 320px; 
-    height: 320px; 
-    border-radius: 40px; 
-    overflow: hidden; 
-    background: #000; /* Fundo preto enquanto carrega */
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    border: 4px solid #fff !important;
-}
-
-/* Força o vídeo da câmera a preencher o quadrado sem distorcer */
-#reader video {
-    object-fit: cover !important;
-    width: 100% !important;
-    height: 100% !important;
-}
-
-/* Botão de fechar flutuante ou abaixo */
-.cam-close-btn {
-    margin-top: 30px;
-    padding: 16px 40px;
-    background: var(--apple-red);
-    color: white;
-    border-radius: 20px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 10px 20px rgba(255, 59, 48, 0.3);
-}</style></head><body><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>zory</title>
+    <title>V.1 - Zory</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     
     <style>
+        /* CSS ORIGINAL MANTIDO */
+        #scanner-modal {
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            z-index: 1000; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+        }
+
+        #reader { 
+            width: 320px; 
+            height: 320px; 
+            border-radius: 40px; 
+            overflow: hidden; 
+            background: #000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 4px solid #fff !important;
+        }
+
+        #reader video {
+            object-fit: cover !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         :root {
             --apple-blue: #007AFF;
             --apple-bg: #F5F5F7;
@@ -116,13 +103,7 @@
         }
 
         .apple-btn:active { background: #e5e5ea; transform: scale(0.96); }
-
-        .apple-btn svg { 
-            width: 26px; height: 26px; stroke: var(--apple-blue); fill: none; 
-            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-            transition: transform 0.3s ease;
-        }
-
+        .apple-btn svg { width: 26px; height: 26px; stroke: var(--apple-blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.3s ease; }
         .apple-btn:hover svg { transform: translateY(-3px); }
 
         .btn-connect {
@@ -140,34 +121,17 @@
             transition: all 0.3s ease;
         }
 
-        .btn-disconnect {
-            background: none; border: none; color: var(--apple-red);
-            font-weight: 600; margin-top: 20px; cursor: pointer; font-size: 14px;
-        }
+        .btn-disconnect { background: none; border: none; color: var(--apple-red); font-weight: 600; margin-top: 20px; cursor: pointer; font-size: 14px; }
 
-        /* Histórico de Arquivos */
-        #history-section {
-            margin-top: 25px;
-            text-align: left;
-            border-top: 1px solid var(--glass-border);
-            padding-top: 20px;
-        }
-        .history-list {
-            display: flex; flex-direction: column; gap: 8px;
-            max-height: 180px; overflow-y: auto; margin-top: 10px;
-        }
-        .history-item {
-            background: #f2f2f7; padding: 12px; border-radius: 16px;
-            display: flex; align-items: center; gap: 12px; cursor: pointer;
-            transition: transform 0.2s;
-        }
+        #history-section { margin-top: 25px; text-align: left; border-top: 1px solid var(--glass-border); padding-top: 20px; }
+        .history-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-top: 10px; }
+        .history-item { background: #f2f2f7; padding: 12px; border-radius: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.2s; }
         .history-item:active { transform: scale(0.98); background: #e5e5ea; }
         .file-icon { font-size: 20px; width: 30px; text-align: center; }
         .file-details { flex: 1; overflow: hidden; }
         .file-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .file-meta { font-size: 10px; color: var(--text-sec); text-transform: uppercase; }
 
-        /* Modais e DropZone */
         #qr-modal, #scanner-modal {
             display: none; position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95);
             z-index: 100; flex-direction: column; align-items: center; justify-content: center;
@@ -175,12 +139,9 @@
         }
         @keyframes modalFade { from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
 
-        .drop-zone {
-            background: #f2f2f7; border: 1px solid var(--glass-border);
-            border-radius: 30px; padding: 40px 20px; cursor: pointer;
-        }
+        .drop-zone { background: #f2f2f7; border: 1px solid var(--glass-border); border-radius: 30px; padding: 40px 20px; cursor: pointer; }
         .progress-bar { width: 100%; height: 6px; background: #e5e5ea; border-radius: 10px; margin-top: 15px; overflow: hidden; display: none; }
-        #fill { width: 0%; height: 100%; background: var(--apple-blue); transition: 0.3s; }
+        #fill { width: 0%; height: 100%; background: var(--apple-blue); transition: 0.1s; }
 
         .status-dot { width: 10px; height: 10px; background: #ff3b30; border-radius: 50%; }
         .online { background: #34c759; animation: glow 2s infinite; }
@@ -248,6 +209,8 @@
 
     <script>
         let peer, conn;
+        let html5QrCode;
+        let incomingChunks = {}; // Para reconstruir arquivos recebidos
         const shortId = Math.floor(1000 + Math.random() * 9000).toString();
         const historyList = document.getElementById('history-list');
 
@@ -268,23 +231,78 @@
         function setupConnEvents() {
             conn.on('data', (data) => {
                 if(data === "DISCONNECT_EVENT") return resetToHome();
-                
-                // Recebendo arquivo
-                const blob = new Blob([data.file], { type: data.type });
-                const url = URL.createObjectURL(blob);
-                addItemToHistory(data.name, data.type, url, 'recebido');
-                
-                // Trigger download automático para apps/arquivos
-                const a = document.createElement('a');
-                a.href = url; a.download = data.name; a.click();
+
+                // LÓGICA DE RECEBIMENTO EM TEMPO REAL
+                if (data.type === 'FILE_START') {
+                    incomingChunks[data.name] = { chunks: [], fileType: data.fileType, size: data.size };
+                    document.getElementById('p-bar').style.display = 'block';
+                    document.getElementById('file-info').innerText = "Recebendo: " + data.name;
+                } 
+                else if (data.type === 'FILE_CHUNK') {
+                    incomingChunks[data.name].chunks.push(data.chunk);
+                    const progress = (incomingChunks[data.name].chunks.length * 16384 / incomingChunks[data.name].size) * 100;
+                    document.getElementById('fill').style.width = Math.min(progress, 100) + '%';
+                } 
+                else if (data.type === 'FILE_END') {
+                    const fileData = incomingChunks[data.name];
+                    const blob = new Blob(fileData.chunks, { type: fileData.fileType });
+                    const url = URL.createObjectURL(blob);
+                    
+                    addItemToHistory(data.name, fileData.fileType, url, 'recebido');
+                    
+                    const a = document.createElement('a');
+                    a.href = url; a.download = data.name; a.click();
+                    
+                    delete incomingChunks[data.name];
+                    document.getElementById('file-info').innerText = "Concluído!";
+                    setTimeout(() => { document.getElementById('p-bar').style.display = 'none'; }, 2000);
+                }
             });
             conn.on('close', resetToHome);
         }
 
+        // LÓGICA DE ENVIO EM TEMPO REAL (CHUNKED)
+        document.getElementById('file-input').onchange = (e) => {
+            const file = e.target.files[0];
+            if(!file || !conn) return;
+
+            document.getElementById('p-bar').style.display = 'block';
+            document.getElementById('file-info').innerText = "Enviando: " + file.name;
+
+            const chunkSize = 16384; // 16KB
+            let offset = 0;
+
+            conn.send({ type: 'FILE_START', name: file.name, fileType: file.type, size: file.size });
+
+            const readSlice = (o) => {
+                const slice = file.slice(offset, o + chunkSize);
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    conn.send({ type: 'FILE_CHUNK', chunk: event.target.result, name: file.name });
+                    offset += chunkSize;
+                    const percent = Math.min((offset / file.size) * 100, 100);
+                    document.getElementById('fill').style.width = percent + '%';
+
+                    if (offset < file.size) {
+                        readSlice(offset);
+                    } else {
+                        conn.send({ type: 'FILE_END', name: file.name });
+                        addItemToHistory(file.name, file.type, URL.createObjectURL(file), 'enviado');
+                        document.getElementById('file-info').innerText = "Enviado com sucesso!";
+                        setTimeout(() => { 
+                            document.getElementById('p-bar').style.display = 'none'; 
+                            document.getElementById('fill').style.width = '0%';
+                        }, 2000);
+                    }
+                };
+                reader.readAsArrayBuffer(slice);
+            };
+            readSlice(0);
+        };
+
         function addItemToHistory(name, type, url, direction) {
             const item = document.createElement('div');
             item.className = 'history-item';
-            
             let icon = '📄';
             if(type.includes('image')) icon = '🖼️';
             else if(type.includes('video')) icon = '🎬';
@@ -297,32 +315,12 @@
                     <div class="file-meta">${direction} • ${type || 'app/file'}</div>
                 </div>
             `;
-            
             item.onclick = () => {
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = name;
-                a.click();
+                a.href = url; a.download = name; a.click();
             };
-            
             historyList.prepend(item);
         }
-
-        document.getElementById('file-input').onchange = (e) => {
-            const file = e.target.files[0];
-            if(!file || !conn) return;
-
-            document.getElementById('p-bar').style.display = 'block';
-            document.getElementById('fill').style.width = '100%';
-            
-            conn.send({ file: file, name: file.name, type: file.type });
-            addItemToHistory(file.name, file.type, URL.createObjectURL(file), 'enviado');
-
-            setTimeout(() => {
-                document.getElementById('fill').style.width = '0%';
-                document.getElementById('p-bar').style.display = 'none';
-            }, 1000);
-        };
 
         function connectManual() {
             const id = document.getElementById('manual-id').value;
@@ -339,9 +337,7 @@
             document.getElementById('status-text').innerText = "Conectado";
         }
 
-        function resetToHome() {
-            location.reload(); 
-        }
+        function resetToHome() { location.reload(); }
 
         function disconnect() {
             if(conn) { conn.send("DISCONNECT_EVENT"); setTimeout(() => resetToHome(), 500); }
@@ -352,59 +348,25 @@
         
         function openScanner() {
             document.getElementById('scanner-modal').style.display = 'flex';
-            const scanner = new Html5Qrcode("reader");
-            scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 200 }, (id) => {
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            
+            const config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+            html5QrCode.start({ facingMode: "environment" }, config, (id) => {
                 document.getElementById('manual-id').value = id;
-                scanner.stop();
-                document.getElementById('scanner-modal').style.display = 'none';
+                stopScanner();
                 connectManual();
-            });
+            }).catch(err => alert("Erro na câmera. Use HTTPS."));
         }
-        function stopScanner() { document.getElementById('scanner-modal').style.display = 'none'; }
+
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scanner-modal').style.display = 'none';
+                }).catch(() => { document.getElementById('scanner-modal').style.display = 'none'; });
+            } else {
+                document.getElementById('scanner-modal').style.display = 'none';
+            }
+        }
     </script>
 </body>
-</html><script>let html5QrCode; // Variável global para controlar a instância
-
-function openScanner() {
-    document.getElementById('scanner-modal').style.display = 'flex';
-    
-    // Instancia o scanner se ainda não existir
-    if (!html5QrCode) {
-        html5QrCode = new Html5Qrcode("reader");
-    }
-
-    const config = { 
-        fps: 10, 
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0 // Mantém quadrado estilo iOS
-    };
-
-    html5QrCode.start(
-        { facingMode: "environment" }, 
-        config,
-        (decodedText) => {
-            // Sucesso ao ler
-            document.getElementById('manual-id').value = decodedText;
-            stopScanner();
-            connectManual();
-        },
-        (errorMessage) => {
-            // Erro de leitura (comum enquanto procura o QR)
-        }
-    ).catch((err) => {
-        console.error("Erro ao iniciar câmera: ", err);
-        alert("Certifique-se de dar permissão à câmera e usar HTTPS.");
-    });
-}
-
-function stopScanner() {
-    if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-            document.getElementById('scanner-modal').style.display = 'none';
-        }).catch(err => {
-            document.getElementById('scanner-modal').style.display = 'none';
-        });
-    } else {
-        document.getElementById('scanner-modal').style.display = 'none';
-    }
-}</script></body></html>
+</html>
