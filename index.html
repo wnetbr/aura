@@ -3,457 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aura</title>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <title>iChat P2P - Apple Style</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    
     <style>
-        /* CSS ORIGINAL MANTIDO */
-        #scanner-modal {
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            z-index: 1000; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-        }
-
-        #reader { 
-            width: 320px; 
-            height: 320px; 
-            border-radius: 40px; 
-            overflow: hidden; 
-            background: #000;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            border: 4px solid #fff !important;
-        }
-
-        #reader video {
-            object-fit: cover !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-
         :root {
+            --apple-bg: rgba(255, 255, 255, 0.8);
             --apple-blue: #007AFF;
-            --apple-bg: #F5F5F7;
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: rgba(0, 0, 0, 0.1);
-            --text-main: #1d1d1f;
-            --text-sec: #86868b;
-            --apple-red: #ff3b30;
-            --system-gray: #f2f2f7;
+            --glass: blur(25px);
+            --system-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--system-font); }
 
         body {
-            margin: 0;
-            font-family: -apple-system, system-ui, sans-serif;
-            background: var(--apple-bg);
-            color: var(--text-main);
+            background: linear-gradient(150deg, #d2d2d7 0%, #ffffff 100%);
             height: 100vh;
             display: flex;
-            flex-direction: column; 
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
 
-        .glass-container {
-            background: #ffffff;
-            border: 1px solid var(--glass-border);
-            border-radius: 42px;
-            width: 90%;
-            max-width: 400px;
-            padding: 45px 35px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.05);
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-            max-height: 90vh;
-            overflow-y: auto;
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            height: 95vh;
+            background: var(--apple-bg);
+            backdrop-filter: var(--glass);
+            border-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,255,255,0.4);
+            position: relative;
         }
 
-        h1 { font-size: 32px; font-weight: 700; margin: 0 0 8px; letter-spacing: -1px; }
-        .sub-status { color: var(--text-sec); font-size: 14px; margin-bottom: 35px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .apple-btn {
-            background: #f2f2f7;
-            border: 1px solid transparent;
-            border-radius: 20px;
-            padding: 18px;
-            color: var(--text-main);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Tela de Conexão (QR Code) */
+        #connection-screen {
+            position: absolute;
+            inset: 0;
+            background: white;
+            z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            font-weight: 500;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            border-radius: 40px;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .apple-btn:active { background: #e5e5ea; transform: scale(0.96); }
-        .apple-btn svg { width: 26px; height: 26px; stroke: var(--apple-blue); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.3s ease; }
-        .apple-btn:hover svg { transform: translateY(-3px); }
+        #qrcode { margin: 25px 0; padding: 15px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
 
         .btn-connect {
-            grid-column: span 2;
             background: var(--apple-blue);
-            border: none;
-            padding: 18px;
-            border-radius: 20px;
             color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 15px;
             font-weight: 600;
-            font-size: 15px;
-            width: 100%;
             cursor: pointer;
-            margin-top: 5px;
-            transition: all 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
         }
 
-        .btn-disconnect { background: none; border: none; color: var(--apple-red); font-weight: 600; margin-top: 20px; cursor: pointer; font-size: 14px; }
+        input.peer-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            text-align: center;
+        }
 
-        #history-section, #paired-section { margin-top: 25px; text-align: left; border-top: 1px solid var(--glass-border); padding-top: 20px; }
-        .history-list, .paired-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; margin-top: 10px; }
-        .history-item, .paired-item { background: #f2f2f7; padding: 12px; border-radius: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: transform 0.2s; }
-        .history-item:active, .paired-item:active { transform: scale(0.98); background: #e5e5ea; }
+        /* Header */
+        header { padding: 30px 25px 15px; display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 42px; height: 42px; background: #E9E9EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* Chat */
+        #chat-window {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 15px;
+            word-wrap: break-word;
+        }
+
+        .sent { align-self: flex-end; background: var(--apple-blue); color: white; border-bottom-right-radius: 5px; }
+        .received { align-self: flex-start; background: #E9E9EB; color: black; border-bottom-left-radius: 5px; }
+
+        /* Input Area */
+        .input-bar {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.6);
+        }
+
+        .text-box {
+            flex: 1;
+            background: white;
+            border-radius: 22px;
+            padding: 10px 15px;
+            border: 1px solid rgba(0,0,0,0.1);
+            outline: none;
+        }
+
+        .file-btn { font-size: 24px; color: var(--apple-blue); cursor: pointer; border: none; background: none; }
         
-        .paired-item { justify-content: space-between; }
-        .device-info { display: flex; align-items: center; gap: 12px; }
-
-        .file-icon { font-size: 20px; width: 30px; text-align: center; }
-        .file-details { flex: 1; overflow: hidden; }
-        .file-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-meta { font-size: 10px; color: var(--text-sec); text-transform: uppercase; }
-
-        #qr-modal, #scanner-modal {
-            display: none; position: fixed; inset: 0; background: rgba(255, 255, 255, 0.95);
-            z-index: 100; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(20px); animation: modalFade 0.3s ease;
-        }
-        @keyframes modalFade { from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
-
-        .drop-zone { background: #f2f2f7; border: 1px solid var(--glass-border); border-radius: 30px; padding: 40px 20px; cursor: pointer; }
-        .progress-bar { width: 100%; height: 6px; background: #e5e5ea; border-radius: 10px; margin-top: 15px; overflow: hidden; display: none; }
-        #fill { width: 0%; height: 100%; background: var(--apple-blue); transition: 0.1s; }
-
-        .status-dot { width: 10px; height: 10px; background: #ff3b30; border-radius: 50%; }
-        .online { background: #34c759; animation: glow 2s infinite; }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 5px #34c759; } 50% { box-shadow: 0 0 15px #34c759; } }
-
-        input[type="text"] {
-            width: 100%; background: #f2f2f7; border: 1px solid var(--glass-border);
-            padding: 16px; border-radius: 16px; margin: 10px 0; text-align: center;
-            font-size: 18px; font-weight: 600; letter-spacing: 2px;
-        }
-
-        .footer {
-            margin-top: 30px;
-            font-size: 12px;
-            color: var(--text-sec);
-            font-weight: 500;
-        }
-        .footer a {
-            color: var(--apple-blue);
-            text-decoration: none;
-            font-weight: 700;
-        }
+        img.preview { max-width: 100%; border-radius: 12px; margin-top: 5px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="glass-container" id="main-card">
-        <h1>AURA</h1>
-        <div class="sub-status">
-            <div class="status-dot" id="dot"></div>
-            <span id="status-text">Iniciando...</span>
-        </div>
-
-        <div id="setup-view">
-            <div class="action-grid">
-                <button class="apple-btn" onclick="openQR()">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                    CÓDIGO
-                </button>
-                <button class="apple-btn" onclick="openScanner()">
-                    <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h18a2 2 0 0 1 2 2z"></path><path d="M12 8v8"></path><path d="M8 12h8"></path></svg>
-                    LEITOR
-                </button>
-            </div>
-            <input type="text" id="manual-id" maxlength="4" placeholder="0000">
-            <button class="btn-connect" onclick="connectManual()">Conectar Dispositivo</button>
-
-            <div id="paired-section">
-                <span style="font-size: 11px; font-weight: 700; color: var(--text-sec);">DISPOSITIVOS SALVOS</span>
-                <div class="paired-list" id="paired-list"></div>
-            </div>
-        </div>
-
-        <div id="transfer-view" style="display:none;">
-            <div class="drop-zone" onclick="document.getElementById('file-input').click()">
-                <svg style="width:40px; height:40px; stroke:var(--apple-blue); margin-bottom:10px;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                <div style="font-weight: 600; color: var(--apple-blue);">Enviar</div>
-            </div>
-            
-            <div class="progress-bar" id="p-bar"><div id="fill"></div></div>
-            <div id="file-info" style="margin-top:10px; font-size:12px; color: var(--text-sec);">Pronto para transferir</div>
-            <input type="file" id="file-input" hidden>
-
-            <div id="history-section">
-                <span style="font-size: 11px; font-weight: 700; color: var(--text-sec);">HISTÓRICO</span>
-                <div class="history-list" id="history-list"></div>
-            </div>
-            
-            <button class="btn-disconnect" onclick="disconnect()">Desconectar</button>
-        </div>
-    </div>
-
-    <div class="footer">
-        Desenvolvido por <a href="https://wnetbr.github.io/-" target="_blank">WNET</a>
-    </div>
-
-    <div id="qr-modal" onclick="closeModals()">
+<div class="app-container">
+    <div id="connection-screen">
+        <h2 style="font-weight: 700;">Conectar Dispositivo</h2>
+        <p style="color: #8e8e93; font-size: 14px; margin-top: 8px;">Escaneie o QR Code ou digite o ID para parear</p>
+        
         <div id="qrcode"></div>
-        <p>Escaneie para conectar</p>
+        <p id="my-id-display" style="font-weight: 600; font-size: 12px; background: #f2f2f7; padding: 5px 15px; border-radius: 20px;"></p>
+
+        <div style="width: 100%; border-top: 1px solid #eee; margin-top: 25px; padding-top: 20px;">
+            <input type="text" id="remote-id" class="peer-input" placeholder="ID do outro dispositivo">
+            <button class="btn-connect" onclick="connectToPeer()">Conectar Agora</button>
+        </div>
     </div>
 
-    <div id="scanner-modal">
-        <div id="reader"></div>
-        <button class="apple-btn" style="margin-top:20px; background:var(--apple-red); color:white;" onclick="stopScanner()">Cancelar</button>
-    </div>
+    <header>
+        <div class="avatar" id="peer-avatar">?</div>
+        <div>
+            <h4 id="status-text">Aguardando conexão...</h4>
+            <span style="font-size: 12px; color: #4cd964;">● P2P Seguro Ativo</span>
+        </div>
+    </header>
 
-    <script>
-        let peer, conn;
-        let html5QrCode;
-        let incomingChunks = {}; 
+    <div id="chat-window"></div>
+
+    <div class="input-bar">
+        <button class="file-btn" onclick="document.getElementById('file-input').click()">+</button>
+        <input type="file" id="file-input" class="hidden" onchange="sendFile(this.files[0])">
+        <input type="text" id="msg-input" class="text-box" placeholder="iMessage" onkeypress="if(event.key==='Enter') sendText()">
+        <button class="file-btn" style="transform: rotate(-45deg)" onclick="sendText()">▲</button>
+    </div>
+</div>
+
+<script>
+    let peer;
+    let conn;
+    const myIdDisplay = document.getElementById('my-id-display');
+    const chatWindow = document.getElementById('chat-window');
+    const msgInput = document.getElementById('msg-input');
+
+    // Inicializar PeerJS
+    peer = new Peer();
+
+    peer.on('open', (id) => {
+        myIdDisplay.innerText = "Seu ID: " + id;
+        new QRCode(document.getElementById("qrcode"), {
+            text: id,
+            width: 180,
+            height: 180
+        });
+    });
+
+    // Escutar por conexões recebidas
+    peer.on('connection', (connection) => {
+        setupConnection(connection);
+    });
+
+    function connectToPeer() {
+        const remoteId = document.getElementById('remote-id').value;
+        if (!remoteId) return alert("Digite um ID");
+        const connection = peer.connect(remoteId);
+        setupConnection(connection);
+    }
+
+    function setupConnection(connection) {
+        conn = connection;
         
-        // RECUPERA ID ANTIGO OU GERA UM NOVO PARA SER PERSISTENTE
-        let myId = localStorage.getItem('aura_my_id') || Math.floor(1000 + Math.random() * 9000).toString();
-        localStorage.setItem('aura_my_id', myId);
-
-        const historyList = document.getElementById('history-list');
-        const pairedList = document.getElementById('paired-list');
-
-        // INICIALIZA PEER
-        peer = new Peer(myId);
-
-        peer.on('open', (id) => {
-            document.getElementById('dot').classList.add('online');
-            document.getElementById('status-text').innerHTML = `ID: <strong>${id}</strong>`;
-            document.getElementById("qrcode").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: id, width: 200, height: 200 });
-            renderPairedDevices();
-        });
-
-        // RECEBE CONEXÃO
-        peer.on('connection', (c) => {
-            conn = c;
-            saveDevice(conn.peer); // Salva quem conectou em mim
-            setupConnEvents();
-            initTransferUI();
-        });
-
-        function triggerDownload(url, name) {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = name;
-            a.target = '_blank';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        function setupConnEvents() {
-            conn.on('data', (data) => {
-                // Só desconecta se receber o evento manual de desconexão
-                if(data === "DISCONNECT_EVENT") return resetToHome();
-
-                if (data.type === 'FILE_START') {
-                    incomingChunks[data.name] = { chunks: [], fileType: data.fileType, size: data.size };
-                    document.getElementById('p-bar').style.display = 'block';
-                    document.getElementById('file-info').innerText = "Recebendo: " + data.name;
-                } 
-                else if (data.type === 'FILE_CHUNK') {
-                    incomingChunks[data.name].chunks.push(data.chunk);
-                    const progress = (incomingChunks[data.name].chunks.length * 16384 / incomingChunks[data.name].size) * 100;
-                    document.getElementById('fill').style.width = Math.min(progress, 100) + '%';
-                } 
-                else if (data.type === 'FILE_END') {
-                    const fileData = incomingChunks[data.name];
-                    const blob = new Blob(fileData.chunks, { type: fileData.fileType });
-                    const url = URL.createObjectURL(blob);
-                    addItemToHistory(data.name, fileData.fileType, url, 'recebido');
-                    triggerDownload(url, data.name);
-                    delete incomingChunks[data.name];
-                    document.getElementById('file-info').innerText = "Concluído!";
-                    setTimeout(() => { document.getElementById('p-bar').style.display = 'none'; }, 2000);
-                }
-            });
-
-            // Se a aba fechar ou cair internet, tentamos manter a UI mas o PeerJS fechará naturalmente.
-            // Removido o resetToHome no 'close' automático para permitir que o usuário tente reconectar sem dar refresh.
-        }
-
-        document.getElementById('file-input').onchange = (e) => {
-            const file = e.target.files[0];
-            if(!file || !conn) return;
-
-            document.getElementById('p-bar').style.display = 'block';
-            document.getElementById('file-info').innerText = "Enviando: " + file.name;
-
-            const chunkSize = 16384; 
-            let offset = 0;
-            conn.send({ type: 'FILE_START', name: file.name, fileType: file.type, size: file.size });
-
-            const readSlice = (o) => {
-                const slice = file.slice(offset, o + chunkSize);
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    conn.send({ type: 'FILE_CHUNK', chunk: event.target.result, name: file.name });
-                    offset += chunkSize;
-                    const percent = Math.min((offset / file.size) * 100, 100);
-                    document.getElementById('fill').style.width = percent + '%';
-                    if (offset < file.size) readSlice(offset);
-                    else {
-                        conn.send({ type: 'FILE_END', name: file.name });
-                        addItemToHistory(file.name, file.type, URL.createObjectURL(file), 'enviado');
-                        document.getElementById('file-info').innerText = "Enviado com sucesso!";
-                        setTimeout(() => { 
-                            document.getElementById('p-bar').style.display = 'none'; 
-                            document.getElementById('fill').style.width = '0%';
-                        }, 2000);
-                    }
-                };
-                reader.readAsArrayBuffer(slice);
-            };
-            readSlice(0);
-        };
-
-        // GESTÃO DE DISPOSITIVOS PAREADOS
-        function saveDevice(id) {
-            let devices = JSON.parse(localStorage.getItem('aura_devices') || '{}');
-            if(!devices[id]) {
-                const name = prompt("Novo dispositivo detectado! Dê um nome a ele:", "Dispositivo " + id);
-                devices[id] = name || id;
-                localStorage.setItem('aura_devices', JSON.stringify(devices));
-                renderPairedDevices();
-            }
-        }
-
-        function renderPairedDevices() {
-            pairedList.innerHTML = '';
-            let devices = JSON.parse(localStorage.getItem('aura_devices') || '{}');
-            for (let id in devices) {
-                const item = document.createElement('div');
-                item.className = 'paired-item';
-                item.innerHTML = `
-                    <div class="device-info" onclick="connectToId('${id}')">
-                        <div class="file-icon">📱</div>
-                        <div class="file-details">
-                            <div class="file-name">${devices[id]}</div>
-                            <div class="file-meta">ID: ${id}</div>
-                        </div>
-                    </div>
-                    <div style="color:var(--apple-red); font-size:12px;" onclick="forgetDevice('${id}')">Remover</div>
-                `;
-                pairedList.appendChild(item);
-            }
-        }
-
-        function forgetDevice(id) {
-            let devices = JSON.parse(localStorage.getItem('aura_devices') || '{}');
-            delete devices[id];
-            localStorage.setItem('aura_devices', JSON.stringify(devices));
-            renderPairedDevices();
-            event.stopPropagation();
-        }
-
-        function connectToId(id) {
-            conn = peer.connect(id);
-            setupConnEvents();
-            initTransferUI();
-        }
-
-        function addItemToHistory(name, type, url, direction) {
-            const item = document.createElement('div');
-            item.className = 'history-item';
-            let icon = '📄';
-            if(type.includes('image')) icon = '🖼️';
-            else if(type.includes('video')) icon = '🎬';
-            item.innerHTML = `
-                <div class="file-icon">${icon}</div>
-                <div class="file-details">
-                    <div class="file-name">${name}</div>
-                    <div class="file-meta">${direction} • ${type || 'file'}</div>
-                </div>
-            `;
-            item.onclick = () => triggerDownload(url, name);
-            historyList.prepend(item);
-        }
-
-        function connectManual() {
-            const id = document.getElementById('manual-id').value;
-            if(!id) return;
-            saveDevice(id);
-            connectToId(id);
-        }
-
-        function initTransferUI() {
-            closeModals();
-            document.getElementById('setup-view').style.display = 'none';
-            document.getElementById('transfer-view').style.display = 'block';
+        conn.on('open', () => {
+            document.getElementById('connection-screen').style.transform = 'translateY(-100%)';
             document.getElementById('status-text').innerText = "Conectado";
-        }
+            addMessage("Sistema", "Conexão estabelecida com sucesso!", "received");
+        });
 
-        function resetToHome() {
-            document.getElementById('setup-view').style.display = 'block';
-            document.getElementById('transfer-view').style.display = 'none';
-            document.getElementById('status-text').innerHTML = `ID: <strong>${myId}</strong>`;
-            if(conn) conn.close();
-        }
-
-        function disconnect() {
-            if(conn) { 
-                conn.send("DISCONNECT_EVENT"); 
-                setTimeout(() => resetToHome(), 500); 
-            } else {
-                resetToHome();
+        conn.on('data', (data) => {
+            if (data.type === 'text') {
+                addMessage("Outro", data.content, "received");
+            } else if (data.type === 'file') {
+                const blob = new Blob([data.file], { type: data.fileType });
+                const url = URL.createObjectURL(blob);
+                if (data.fileType.startsWith('image/')) {
+                    addMessage("Outro", `<img src="${url}" class="preview"><br>${data.fileName}`, "received");
+                } else {
+                    addMessage("Outro", `<a href="${url}" download="${data.fileName}" style="color:inherit">📁 Arquivo: ${data.fileName}</a>`, "received");
+                }
             }
-        }
+        });
+    }
 
-        function openQR() { document.getElementById('qr-modal').style.display = 'flex'; }
-        function closeModals() { document.getElementById('qr-modal').style.display = 'none'; }
+    function sendText() {
+        const text = msgInput.value;
+        if (!text || !conn) return;
+        conn.send({ type: 'text', content: text });
+        addMessage("Você", text, "sent");
+        msgInput.value = "";
+    }
+
+    function sendFile(file) {
+        if (!file || !conn) return;
         
-        function openScanner() {
-            document.getElementById('scanner-modal').style.display = 'flex';
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
-                document.getElementById('manual-id').value = id;
-                stopScanner();
-                connectManual();
-            }).catch(err => alert("Erro na câmera."));
-        }
+        conn.send({
+            type: 'file',
+            file: file,
+            fileType: file.type,
+            fileName: file.name
+        });
 
-        function stopScanner() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('scanner-modal').style.display = 'none';
-                }).catch(() => { document.getElementById('scanner-modal').style.display = 'none'; });
-            }
+        if (file.type.startsWith('image/')) {
+            const url = URL.createObjectURL(file);
+            addMessage("Você", `<img src="${url}" class="preview"><br>${file.name}`, "sent");
+        } else {
+            addMessage("Você", `📁 Arquivo enviado: ${file.name}`, "sent");
         }
-    </script>
+    }
+
+    function addMessage(user, content, type) {
+        const div = document.createElement('div');
+        div.className = `msg ${type}`;
+        div.innerHTML = content;
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+</script>
+
 </body>
 </html>
